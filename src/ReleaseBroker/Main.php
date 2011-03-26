@@ -47,16 +47,37 @@ class Main
             return;
         }
 
-        $sourceDir = $this->fetchReleaseFiles($payload->getRepositoryURL());
+        $sourceDir   = $this->fetchReleaseFiles($payload->getRepositoryURL());
         $releaseFile = $this->packageRelease($sourceDir);
-        $this->release($releaseFile, $payload->);
+        $maintainer  = $this->getMaintainerByEmail($payload->getMainatinerEmail());
+        $this->release($releaseFile, $maintainer);
 
     }
 
-    function getSimpleChannelServer()
+    function getMaintainerByEmail($email)
     {
-        $this->channel = new \PEAR2\Pyrus\Channel(new \PEAR2\Pyrus\ChannelFile($this->options['channel.xml']));
-        return new PEAR2\SimpleChannelServer\Main($this->channel, dirname($this->options['channel.xml']));
+    	// check maintainers and find match
+    	return $maintainer;
+    }
+
+    /**
+     * @return \PEAR2\Pyrus\Channel
+     */
+    function getChannel()
+    {
+    	return new \PEAR2\Pyrus\Channel(new \PEAR2\Pyrus\ChannelFile($this->options['channel.xml']));
+    }
+
+    /**
+     * 
+     * @param $channel
+     * @param string $path
+     * 
+     * @return \PEAR2\SimpleChannelServer\Main
+     */
+    function getSimpleChannelServer($channel, $path)
+    {
+        return new \PEAR2\SimpleChannelServer\Main($channel, $path);
     }
 
     /**
@@ -96,7 +117,8 @@ class Main
 
     function release($relaseTgz, $maintainer)
     {
-        $scs = $this->getSimpleChannelServer();
+    	$channel = $this->getChannel();
+        $scs     = $this->getSimpleChannelServer($channel, dirname($this->options['channel.xml']));
         return $scs->saveRelease($relaseTgz, $maintainer);
     }
 }
